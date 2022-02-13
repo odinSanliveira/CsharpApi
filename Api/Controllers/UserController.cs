@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Api.Models.User;
+using CsharpApi.Filters;
 using CsharpApi.Models.User;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,8 +26,10 @@ namespace Api.Controllers
         [SwaggerResponse(statusCode: 500, description:"Internal error", Type=typeof(GenericErrorViewModel))]
         [HttpPost]
         [Route("login")]
+        [CustomModelStateValidation]
         public IActionResult Login(LoginViewModelInput loginInput)
         {
+            
             return Ok(loginInput);
         }
         /// <summary>
@@ -36,6 +39,7 @@ namespace Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route ("register")]
+        [CustomModelStateValidation]
         public IActionResult Register(RegisterViewModelInput registerInput)
         {
             return Created("", registerInput);

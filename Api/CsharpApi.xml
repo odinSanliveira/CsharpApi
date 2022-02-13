@@ -9,7 +9,7 @@
             
             </summary>
             <param name="loginInput"></param>
-            <returns></returns>
+            <returns>User status, user data and user token</returns>
         </member>
         <member name="M:Api.Controllers.UserController.Register(Api.Models.User.RegisterViewModelInput)">
             <summary>
