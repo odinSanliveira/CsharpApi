@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CsharpApi</name>
+    </assembly>
+    <members>
+        <member name="M:Api.Controllers.UserController.Login(Api.Models.User.LoginViewModelInput)">
+            <summary>
+            
+            </summary>
+            <param name="loginInput"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Api.Controllers.UserController.Register(Api.Models.User.RegisterViewModelInput)">
+            <summary>
+            
+            </summary>
+            <param name="registerInput"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
