@@ -1,4 +1,6 @@
-﻿using CsharpApi.Models.Courses;
+﻿using CsharpApi.Business.Entities;
+using CsharpApi.Business.Repositories;
+using CsharpApi.Models.Courses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,19 +18,32 @@ namespace CsharpApi.Controllers
     [Authorize]
     public class CourseController : ControllerBase
     {
+        private readonly ICourseRepository _courseRepository;
+
+        public CourseController(ICourseRepository courseRepository)
+        {
+            _courseRepository = courseRepository;
+        }
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="courseInput"></param>
         /// <returns>Post a Course</returns>
         /// 
-        [SwaggerResponse(statusCode: 201, description:"Sucesso ao cadastrar o curso")]
-        [SwaggerResponse(statusCode: 401, description:"Falha ao cadastrar o curso")]
+        [SwaggerResponse(statusCode: 201, description: "Sucesso ao cadastrar o curso")]
+        [SwaggerResponse(statusCode: 401, description: "Falha ao cadastrar o curso")]
         [HttpPost]
         [Route("")]
-        public async Task<IActionResult> PostCourse(CourseViewModelInput courseInput)
+        public async Task<IActionResult> Post(CourseViewModelInput courseInput)
         {
+            Course course = new Course();
+            course.Title = courseInput.Title;
+            course.Description = courseInput.Description;
             var UserCode = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+            course.UserCode = UserCode;
+            _courseRepository.AddCourse(course);
+            _courseRepository.Commit();
             return Created("", courseInput);
         }
 
@@ -38,17 +53,17 @@ namespace CsharpApi.Controllers
         [Route("")]
         public async Task<IActionResult> Get()
         {
-            //var UserCode = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
-            var courses = new List<CourseViewModelOutput>();
 
-            courses.Add(new CourseViewModelOutput()
-            {
-                Login = "",
-                Description = "First test",
-                Name = "Teste Name"
+            var UserCode = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+            //var courses = new List<CourseViewModelOutput>();
+            var courses = _courseRepository.GetByUser(UserCode)
+                .Select(s => new CourseViewModelOutput()
+                {
+                    Login = s.User.Login,
+                    Title = s.Title,
+                    Description = s.Description
+                }) ;
 
-            });
-            
             return Ok(courses);
         }
     }

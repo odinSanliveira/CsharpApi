@@ -7,12 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Api.Models.User;
 using CsharpApi.Business.Entities;
+using CsharpApi.Business.Repositories;
+using CsharpApi.Configurations;
 using CsharpApi.Filters;
 using CsharpApi.Infrastructure.Data;
 using CsharpApi.Models.User;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -22,6 +25,15 @@ namespace Api.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+        private readonly IUserRepository _userRepository;
+        private readonly IAuthenticationService _authenticationService;
+
+        public UserController(IUserRepository userRepository, IAuthenticationService authenticationService)
+        {
+            _userRepository = userRepository;
+            _authenticationService = authenticationService;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -34,31 +46,22 @@ namespace Api.Controllers
         [HttpPost]
         [Route("login")]
         [CustomModelStateValidation]
-        public IActionResult Login(LoginViewModelInput loginInput)
+        public IActionResult Login(LoginViewModelInput loginViewModelInput)
         {
+            User user = _userRepository.GetUser(loginViewModelInput.Login);
+
+            if(user == null)
+            {
+                return BadRequest("There was an error trying to access.");
+            }
             var userViewModelOutput = new UserViewModelOutput()
             {
-                Code = 1,
-                Login = "odinSantos",
-                Email = "odin@gmail.com"
+                Code = user.Code,
+                Login = user.Login,
+                Email = user.Email
             };
-            var secret = Encoding.ASCII.GetBytes("MzfsT&d9gprP>!9$Es(X!5g@;ef!5sbk:jH\\2.}8ZP'qY#7");
-            //var secret = Encoding.ASCII.GetBytes(_configuration.GetSection("MzfsT&d9gprP>!9$Es(X!5g@;ef!5sbk:jH\\2.}8ZP'qY#7").Value);
-            var symmetricSecyrityKey = new SymmetricSecurityKey(secret);
-            var securityTokenDescription = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, userViewModelOutput.Code.ToString()),
-                    new Claim(ClaimTypes.Name, userViewModelOutput.Login.ToString()),
-                    new Claim(ClaimTypes.Email, userViewModelOutput.Email.ToString())
-                }),
-                Expires = DateTime.UtcNow.AddDays(1),
-                SigningCredentials = new SigningCredentials(symmetricSecyrityKey, SecurityAlgorithms.HmacSha256Signature)
-            };
-            var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
-            var tokenGenerated = jwtSecurityTokenHandler.CreateToken(securityTokenDescription);
-            var token = jwtSecurityTokenHandler.WriteToken(tokenGenerated);
+
+            var token = _authenticationService.GenerateToken(userViewModelOutput);
             return Ok(new
             {
                 Token = token,
@@ -79,21 +82,13 @@ namespace Api.Controllers
         [CustomModelStateValidation]
         public IActionResult Register(RegisterViewModelInput registerInput)
         {
-            var OptionsBuilder = new DbContextOptionsBuilder<CourseDatabaseContext>();
-            OptionsBuilder.UseSqlServer("Server=localhost;Database=API_COURSE;Trusted_Connection=True;");
-            CourseDatabaseContext context = new CourseDatabaseContext(OptionsBuilder.Options);
-            var awaitMigrations = context.Database.GetPendingMigrations();
-            if(awaitMigrations.Count() > 0)
-            {
-                context.Database.Migrate();
-            }
+            
             var UserData = new User();
             UserData.Login = registerInput.Login;
             UserData.Password = registerInput.Password;
             UserData.Email = registerInput.Email;
-            context.DbUser.Add(UserData);
-            context.SaveChanges();
-
+            _userRepository.Add(UserData);
+            _userRepository.Commit();
             return Created("", registerInput);
         }
     }

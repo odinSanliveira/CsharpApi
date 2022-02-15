@@ -1,4 +1,7 @@
+using CsharpApi.Business.Repositories;
+using CsharpApi.Configurations;
 using CsharpApi.Infrastructure.Data;
+using CsharpApi.Infrastructure.Data.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -38,15 +41,7 @@ namespace Api
                 {
                     options.SuppressModelStateInvalidFilter = true;
                 });
-            //configuring enable retry on failure and make a connection
-            services.AddDbContext<CourseDatabaseContext>(options => {
-                options.UseSqlServer(Configuration.GetConnectionString("API_COURSE"),
-                    sqlServerOptionsAction: sqlOptions =>
-                    {
-                        sqlOptions.EnableRetryOnFailure();
-                    }
-                    );
-            });
+           
             services.AddSwaggerGen(c =>
             {
 
@@ -99,6 +94,20 @@ namespace Api
                     ValidateAudience = false
                 };
             });
+
+            //configuring enable retry on failure and make a connection
+            services.AddDbContext<CourseDatabaseContext>(options => {
+                options.UseSqlServer(Configuration.GetConnectionString("API_COURSE"),
+                    sqlServerOptionsAction: sqlOptions =>
+                    {
+                        sqlOptions.EnableRetryOnFailure();
+                    }
+                    );
+            });
+            //dependencies injection
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ICourseRepository, CourseRepository>();
+            services.AddScoped<IAuthenticationService, JwtService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

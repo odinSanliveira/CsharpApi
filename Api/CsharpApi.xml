@@ -4,7 +4,7 @@
         <name>CsharpApi</name>
     </assembly>
     <members>
-        <member name="M:CsharpApi.Controllers.CourseController.PostCourse(CsharpApi.Models.Courses.CourseViewModelInput)">
+        <member name="M:CsharpApi.Controllers.CourseController.Post(CsharpApi.Models.Courses.CourseViewModelInput)">
             <summary>
             
             </summary>
@@ -24,7 +24,7 @@
             
             </summary>
             <param name="registerInput"></param>
-            <returns></returns>
+            <returns>Register View Model</returns>
         </member>
     </members>
 </doc>

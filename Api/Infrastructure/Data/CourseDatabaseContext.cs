@@ -22,6 +22,7 @@ namespace CsharpApi.Infrastructure.Data
             base.OnModelCreating(modelBuilder);
         }
 
-        public DbSet<User> DbUser { get; set; }
+        public DbSet<User> UserSet { get; set; }
+        public DbSet<Course> CourseSet { get; set; }
     }
 }
