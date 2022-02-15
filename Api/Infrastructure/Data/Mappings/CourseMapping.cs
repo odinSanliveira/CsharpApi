@@ -18,6 +18,8 @@ namespace CsharpApi.Infrastructure.Data.Mappings
             builder.Property(p => p.Code).ValueGeneratedOnAdd();
             builder.Property(p => p.Title);
             builder.Property(p => p.Description);
+            builder.HasOne(p => p.User)
+                .WithMany().HasForeignKey(fk => fk.UserCode);
         }
     }
 }

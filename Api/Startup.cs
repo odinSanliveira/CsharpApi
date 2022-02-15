@@ -1,8 +1,10 @@
+using CsharpApi.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -36,6 +38,15 @@ namespace Api
                 {
                     options.SuppressModelStateInvalidFilter = true;
                 });
+            //configuring enable retry on failure and make a connection
+            services.AddDbContext<CourseDatabaseContext>(options => {
+                options.UseSqlServer(Configuration.GetConnectionString("API_COURSE"),
+                    sqlServerOptionsAction: sqlOptions =>
+                    {
+                        sqlOptions.EnableRetryOnFailure();
+                    }
+                    );
+            });
             services.AddSwaggerGen(c =>
             {
 
@@ -117,5 +128,7 @@ namespace Api
                 c.RoutePrefix = string.Empty;
             });
         }
+
+        
     }
 }
