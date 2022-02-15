@@ -4,6 +4,14 @@
         <name>CsharpApi</name>
     </assembly>
     <members>
+        <member name="M:CsharpApi.Controllers.CourseController.PostCourse(CsharpApi.Models.Courses.CourseViewModelInput)">
+            <summary>
+            
+            </summary>
+            <param name="courseInput"></param>
+            <returns>Post a Course</returns>
+            
+        </member>
         <member name="M:Api.Controllers.UserController.Login(Api.Models.User.LoginViewModelInput)">
             <summary>
             
