@@ -18,12 +18,13 @@ namespace api.web.mvc.Controllers
 
             return View();
         }
-        //[HttpPost]
-        //public IActionResult Create(CreateCourseViewModelInput createCouseViewModelInput)
-        //{
 
-        //    return View();
-        //}
+        [HttpPost]
+        public IActionResult Create(CreateCourseViewModelInput createCouseViewModelInput)
+        {
+
+            return View();
+        }
 
         public IActionResult List()
         {
