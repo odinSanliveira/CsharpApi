@@ -27,8 +27,14 @@ namespace api.web.mvc
             var clientHandler = new HttpClientHandler();
             //disabling client digital certificate
             clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyError) => { return true; } ;
-
+            
+            //dependecies injection
             services.AddRefitClient<IUserService>()
+                .ConfigureHttpClient(c =>
+                {
+                    c.BaseAddress = new Uri(Configuration.GetValue<string>("ApiUrl"));
+                }).ConfigurePrimaryHttpMessageHandler(c => clientHandler);
+            services.AddRefitClient<ICourseService>()
                 .ConfigureHttpClient(c =>
                 {
                     c.BaseAddress = new Uri(Configuration.GetValue<string>("ApiUrl"));

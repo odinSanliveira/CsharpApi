@@ -1,14 +1,22 @@
 ﻿using api.web.mvc.Models.Course;
+using api.web.mvc.Services;
 using Microsoft.AspNetCore.Mvc;
+using Refit;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace api.web.mvc.Controllers
 {
     public class CourseController : Controller
     {
+        private readonly ICourseService _courseService;
+
+        public CourseController(ICourseService CourseService)
+        {
+            _courseService = CourseService;
+
+        }
         public IActionResult Index()
         {
             return View();
@@ -20,8 +28,21 @@ namespace api.web.mvc.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(CreateCourseViewModelInput createCouseViewModelInput)
+        public async Task <IActionResult> Create(CreateCourseViewModelInput creatingCourse)
         {
+            try 
+            {
+                var course = await _courseService.Create(creatingCourse);
+                ModelState.AddModelError("", $"Your course name is {course.Title}");
+            }
+            catch (ApiException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+            }
 
             return View();
         }
