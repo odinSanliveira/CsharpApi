@@ -8,5 +8,7 @@ namespace api.web.mvc.Services
     {
         [Post("/api/v1/user/register")]
         Task<CreateUserViewModelInput> Register(CreateUserViewModelInput CreatingUser);
+        [Post("/api/v1/user/login")]
+        Task<LoginViewModelOutput> Login(LoginViewModelInput CreatingUser);
     }
 }

@@ -64,8 +64,22 @@ namespace api.web.mvc.Controllers
         }
 
         [HttpPost]
-        public IActionResult Login(LoginViewModelInput userLogin)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginViewModelInput userLogin)
         {
+            try
+            {
+                var user = await _userService.Login(userLogin);
+                ModelState.AddModelError("", $"Welcome, {user.User} with token: {user.Token}");
+            }
+            catch (ApiException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+            }
             return View();
         }
 
