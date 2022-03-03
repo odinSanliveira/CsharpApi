@@ -3,11 +3,12 @@ using api.web.mvc.Services;
 using Microsoft.AspNetCore.Mvc;
 using Refit;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace api.web.mvc.Controllers
 {
+
+    [Microsoft.AspNetCore.Authorization.Authorize]
     public class CourseController : Controller
     {
         private readonly ICourseService _courseService;
@@ -46,25 +47,11 @@ namespace api.web.mvc.Controllers
 
             return View();
         }
-
-        public IActionResult List()
+        public async Task<IActionResult> List()
         {
-            var course = new List<ListCourseViewModelOutput>();
+            var course = await _courseService.List();
 
-            course.Add(new ListCourseViewModelOutput
-            {
-                Title = "MVC with .NET CORE",
-                Description = "You'll learn build a MVC website with .NET",
-                Login = "DiegoBeans"
- 
-            });
-            course.Add(new ListCourseViewModelOutput
-            {
-                Title = "Singing with Cheryl Porter",
-                Description = "You'll learn to sing with the vocal coach Cheryl Porter",
-                Login = "CherylPorter"
-
-            });
+            
             return View(course);
         }
     }

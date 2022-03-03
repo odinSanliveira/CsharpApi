@@ -1,8 +1,12 @@
 ﻿using api.web.mvc.Models.Users;
 using api.web.mvc.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Refit;
 using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace api.web.mvc.Controllers
@@ -67,10 +71,25 @@ namespace api.web.mvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModelInput userLogin)
         {
+
+            
             try
             {
                 var user = await _userService.Login(userLogin);
-                ModelState.AddModelError("", $"Welcome, {user.User} with token: {user.Token}");
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.User.Code.ToString()),
+                    new Claim(ClaimTypes.Name, user.User.Login),
+                    new Claim(ClaimTypes.Email, user.User.Email),
+                    new Claim("token", user.Token)
+                };
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var authProperties = new AuthenticationProperties
+                {
+                    ExpiresUtc = new DateTimeOffset(DateTime.UtcNow.AddDays(1))
+                };
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                ModelState.AddModelError("", $"Welcome, {user.User.Login} with token: {user.Token}");
             }
             catch (ApiException ex)
             {

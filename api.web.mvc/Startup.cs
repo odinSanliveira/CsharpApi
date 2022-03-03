@@ -1,4 +1,6 @@
+using api.web.mvc.Handlers;
 using api.web.mvc.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +25,7 @@ namespace api.web.mvc
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddHttpContextAccessor();
 
             var clientHandler = new HttpClientHandler();
             //disabling client digital certificate
@@ -34,11 +37,18 @@ namespace api.web.mvc
                 {
                     c.BaseAddress = new Uri(Configuration.GetValue<string>("ApiUrl"));
                 }).ConfigurePrimaryHttpMessageHandler(c => clientHandler);
+
+            services.AddTransient<BearerTokenMessageHandler>();
             services.AddRefitClient<ICourseService>()
+                .AddHttpMessageHandler<BearerTokenMessageHandler>()
                 .ConfigureHttpClient(c =>
                 {
                     c.BaseAddress = new Uri(Configuration.GetValue<string>("ApiUrl"));
                 }).ConfigurePrimaryHttpMessageHandler(c => clientHandler);
+ 
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -59,6 +69,7 @@ namespace api.web.mvc
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
