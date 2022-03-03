@@ -102,6 +102,17 @@ namespace api.web.mvc.Controllers
             return View();
         }
 
+        public IActionResult LogoutRequest()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction($"{nameof(Login)}");
+        }
 
     }
 }
