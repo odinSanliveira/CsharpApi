@@ -47,7 +47,11 @@ namespace api.web.mvc
                 }).ConfigurePrimaryHttpMessageHandler(c => clientHandler);
  
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie();
+                .AddCookie(options => {
+
+                    options.LoginPath = "/User/Login";
+                    options.AccessDeniedPath = "/User/Login";
+                });
 
         }
 
