@@ -90,6 +90,7 @@ namespace api.web.mvc.Controllers
                 };
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
                 ModelState.AddModelError("", $"Welcome, {user.User.Login} with token: {user.Token}");
+                return RedirectToAction("List", "Course");
             }
             catch (ApiException ex)
             {
